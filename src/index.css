@@ -13,6 +13,15 @@ body,
 #root {
   min-height: 100%;
 }
+/* Expanded layout used while capturing a document for PDF download */
+.exporting .overflow-x-auto {
+  overflow: visible !important;
+  width: max-content;
+  min-width: 100%;
+}
+.exporting .max-w-7xl {
+  max-width: none !important;
+}
 body {
   background: #f2f0ea;
   color: #141414;

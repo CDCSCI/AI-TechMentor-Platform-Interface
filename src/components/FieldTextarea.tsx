@@ -4,23 +4,13 @@ interface FieldTextareaProps {
   label: string;
   hint?: string;
   placeholder: string;
-  max: number;
   rows?: number;
   value: string;
   onChange: (value: string) => void;
   error?: string;
 }
 
-export function FieldTextarea({
-  label,
-  hint,
-  placeholder,
-  max,
-  rows = 4,
-  value,
-  onChange,
-  error
-}: FieldTextareaProps) {
+export function FieldTextarea({ label, hint, placeholder, rows = 4, value, onChange, error }: FieldTextareaProps) {
   const id = useId();
 
   return (
@@ -32,7 +22,6 @@ export function FieldTextarea({
       <textarea
         id={id}
         rows={rows}
-        maxLength={max}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
@@ -44,14 +33,11 @@ export function FieldTextarea({
         'border-line focus:border-forest-500 focus:ring-forest-100'}`
         } />
       
-      <div className="mt-1 flex items-start justify-between gap-4 text-xs">
-        <span id={`${id}-error`} className="text-red-600">
+      {error &&
+      <p id={`${id}-error`} className="mt-1 text-xs text-red-600">
           {error}
-        </span>
-        <span className="tabular-nums text-ink-faint">
-          {value.length}/{max}
-        </span>
-      </div>
+        </p>
+      }
     </div>);
 
 }

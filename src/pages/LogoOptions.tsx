@@ -30,12 +30,12 @@ export function LogoOptions() {
           <div className="max-w-2xl">
             <h1 className="font-serif text-4xl font-semibold text-ink md:text-5xl">Logo options</h1>
             <p className="mt-3 text-[15px] leading-relaxed text-ink-muted">
-              Four refined directions for AI TechMentor. Each one is shown on the brand green, on a light
+              Four refined directions for AI TechMentor. Each one is shown on the brand black, on a light
               background, and at small sizes. Choose one to see it throughout the product.
             </p>
           </div>
           <Button variant="secondary" onClick={() => navigate('/app')}>
-            Open the product
+            Back to the product
           </Button>
         </header>
 

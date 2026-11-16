@@ -14,8 +14,6 @@ export interface NavItem {
   path: string;
   icon: LucideIcon;
   description: string;
-  /** Keep out of the Home dashboard's tool grid */
-  hideOnHome?: boolean;
 }
 
 export const navItems: NavItem[] = [
@@ -48,12 +46,11 @@ export const navItems: NavItem[] = [
   label: 'Mock Interviews',
   path: '/app/interviews',
   icon: MessageCircleIcon,
-  description: 'Practice live with feedback on content and voice.'
+  description: 'Practice live and review your pacing per question.'
 },
 {
   label: 'Relocate',
   path: '/app/relocate',
   icon: MapPinIcon,
-  description: 'Compare offers across cities in real take-home terms.',
-  hideOnHome: true
+  description: 'Compare offers across cities in real take-home terms.'
 }];

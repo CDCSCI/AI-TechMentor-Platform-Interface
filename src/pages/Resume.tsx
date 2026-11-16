@@ -1,17 +1,27 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { LightbulbIcon } from 'lucide-react';
 import { PageHeader } from '../components/PageHeader';
 import { FieldTextarea } from '../components/FieldTextarea';
 import { Button } from '../components/Button';
+import { ErrorNote } from '../components/ErrorNote';
+import { TailoringResults } from '../components/resume/TailoringResults';
 import { useFakeRequest } from '../hooks/useFakeRequest';
-import { resumeSuggestions } from '../data/resumeSuggestions';
+import { useCareer } from '../contexts/CareerContext';
+import { tailorResume } from '../utils/resumeTailoring';
 
 export function Resume() {
+  const { profile } = useCareer();
   const [job, setJob] = useState('');
   const [skills, setSkills] = useState('');
+  const [submitted, setSubmitted] = useState({ job: '', skills: '' });
   const [error, setError] = useState('');
   const { status, run } = useFakeRequest();
+
+  const result = useMemo(
+    () => status === 'success' ? tailorResume({ job: submitted.job, skillsText: submitted.skills, profile }) : null,
+    [status, submitted, profile]
+  );
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,6 +30,7 @@ export function Resume() {
       return;
     }
     setError('');
+    setSubmitted({ job, skills });
     run();
   };
 
@@ -27,7 +38,7 @@ export function Resume() {
     <div>
       <PageHeader
         title="Revise your resume"
-        description="Paste a job description or key details, and we’ll help you rewrite your resume to match. Keep it specific and authentic to your experience." />
+        description="Paste a job description or key details, and we’ll compare it with your profile and rewrite your experience to match. Keep it specific and authentic." />
       
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_260px]">
         <form onSubmit={submit} className="flex flex-col gap-6" noValidate>
@@ -35,7 +46,6 @@ export function Resume() {
             label="Job description"
             hint="(optional but recommended)"
             placeholder="Paste the job posting here…"
-            max={2000}
             rows={6}
             value={job}
             onChange={setJob}
@@ -43,8 +53,7 @@ export function Resume() {
           
           <FieldTextarea
             label="Key skills or role focus"
-            placeholder="e.g. networking, system administration, Python, security…"
-            max={500}
+            placeholder="e.g. networking, Linux, Python, security…"
             rows={3}
             value={skills}
             onChange={setSkills} />
@@ -54,37 +63,38 @@ export function Resume() {
               {status === 'loading' ? 'Tailoring…' : 'Get tailored suggestions'}
             </Button>
           </div>
+          {status === 'error' && <ErrorNote onRetry={run} />}
         </form>
 
         <aside className="h-fit rounded-xl bg-forest-50 p-5">
-          <LightbulbIcon className="h-5 w-5 text-forest-700" />
-          <h2 className="mt-3 text-sm font-semibold text-forest-900">Tip</h2>
-          <p className="mt-1 text-sm leading-relaxed text-forest-900/80">
-            The more specific you are, the better the results. Include the job title, key responsibilities,
-            and required skills.
-          </p>
+          <LightbulbIcon className="h-5 w-5 text-forest-800" aria-hidden="true" />
+          {profile.resume.trim() ?
+          <>
+              <h2 className="mt-3 text-sm font-semibold text-ink">Using your profile</h2>
+              <p className="mt-1 text-sm leading-relaxed text-ink-muted">
+                Rewrites come from the resume in your profile
+                {profile.role.trim() ? `, aimed at ${profile.role.trim()} roles` : ''}. Paste the full posting for the
+                most accurate match.
+              </p>
+            </> :
+
+          <>
+              <h2 className="mt-3 text-sm font-semibold text-ink">Add your resume first</h2>
+              <p className="mt-1 text-sm leading-relaxed text-ink-muted">
+                Rewrites are based on your own experience. Without a resume in your profile, you’ll only see examples.
+              </p>
+              <Link
+              to="/app/profile"
+              className="mt-3 inline-block text-sm font-semibold text-ink underline underline-offset-2">
+              
+                Go to profile
+              </Link>
+            </>
+          }
         </aside>
       </div>
 
-      {status === 'success' &&
-      <motion.section
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
-        className="mt-10 border-t border-line pt-8"
-        aria-live="polite">
-        
-          <h2 className="font-serif text-xl font-semibold text-ink">Suggested rewrites</h2>
-          <ul className="mt-5 divide-y divide-line">
-            {resumeSuggestions.map((s) =>
-          <li key={s.before} className="grid gap-2 py-4 md:grid-cols-2 md:gap-8">
-                <p className="text-sm text-ink-faint line-through decoration-ink-faint/50">{s.before}</p>
-                <p className="text-sm font-medium text-ink">{s.after}</p>
-              </li>
-          )}
-          </ul>
-        </motion.section>
-      }
+      {result && <TailoringResults result={result} />}
     </div>);
 
 }

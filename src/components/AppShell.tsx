@@ -1,6 +1,5 @@
 import React from 'react';
-import { Link, Outlet } from 'react-router-dom';
-import { PaletteIcon } from 'lucide-react';
+import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 
@@ -14,14 +13,6 @@ export function AppShell() {
           <Outlet />
         </main>
       </div>
-
-      <Link
-        to="/"
-        className="fixed bottom-5 right-5 inline-flex items-center gap-2 rounded-full border border-line bg-surface px-4 py-2 text-sm font-medium text-forest-900 shadow-sm transition-[border-color,background-color] duration-150 ease-out hover:border-forest-200 hover:bg-forest-50">
-        
-        <PaletteIcon className="h-4 w-4" />
-        Logo options
-      </Link>
     </div>);
 
 }
