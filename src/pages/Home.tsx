@@ -5,7 +5,7 @@ import { navItems } from '../data/navigation';
 import { currentUser } from '../data/user';
 
 export function Home() {
-  const [profile, ...tools] = navItems.slice(1);
+  const [profile, ...tools] = navItems.slice(1).filter((item) => !item.hideOnHome);
 
   return (
     <div>

@@ -9,8 +9,8 @@ interface LogoMarkProps {
 }
 
 export function LogoMark({ variant, tone = 'onDark', size = 28, className }: LogoMarkProps) {
-  const main = tone === 'onDark' ? '#ffffff' : '#174a37';
-  const accent = tone === 'onDark' ? '#8fd0aa' : '#2f7a5a';
+  const main = tone === 'onDark' ? '#ffffff' : '#121212';
+  const accent = tone === 'onDark' ? '#9a9892' : '#6b6a66';
 
   return (
     <svg

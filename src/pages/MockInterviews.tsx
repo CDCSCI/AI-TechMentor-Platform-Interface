@@ -1,63 +1,94 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { ChevronRightIcon, CodeIcon, MicIcon, SquareIcon, UserIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { ChevronRightIcon, CodeIcon, MicIcon, UserIcon } from 'lucide-react';
 import { PageHeader } from '../components/PageHeader';
 import { FieldSelect } from '../components/FieldSelect';
 import { Button } from '../components/Button';
+import { SuccessNote } from '../components/SuccessNote';
+import { InterviewRoom } from '../components/interview/InterviewRoom';
 import { useFakeRequest } from '../hooks/useFakeRequest';
-import { pastSessions } from '../data/pastSessions';
+import { pastSessions, type PastSession } from '../data/pastSessions';
+import { interviewer } from '../data/interviewQuestions';
 
 const interviewTypes = ['Behavioral', 'Technical', 'Case study', 'Career growth'];
 
 export function MockInterviews() {
   const [type, setType] = useState('Behavioral');
-  const { status, run, reset } = useFakeRequest(800);
+  const [sessions, setSessions] = useState<PastSession[]>(pastSessions);
+  const [savedNote, setSavedNote] = useState('');
+  const { status, run, reset } = useFakeRequest(900);
+
+  const handleEnd = ({ answered, completed }: {answered: number;seconds: number;completed: boolean;}) => {
+    reset();
+    if (answered === 0) {
+      setSavedNote('');
+      return;
+    }
+    setSessions((prev) => [
+    {
+      id: `s-${Date.now()}`,
+      title: `${type} – Practice`,
+      date: format(new Date(), 'MMM d, yyyy · h:mm a'),
+      kind: type === 'Technical' ? 'technical' : 'behavioral',
+      score: completed ? 'Good' : 'Partial'
+    },
+    ...prev]
+    );
+    setSavedNote(`Session saved · ${answered} question${answered === 1 ? '' : 's'} answered`);
+  };
 
   return (
     <div>
       <PageHeader
         title="Mock Interviews"
-        description="Practice with realistic interview questions, get AI feedback, and build your confidence." />
+        description="Practice out loud with an AI interviewer, get feedback on content and delivery, and build your confidence." />
       
 
-      <section className="max-w-3xl rounded-2xl border border-line bg-surface p-6">
+      <section className="max-w-4xl">
         {status === 'success' ?
-        <motion.div
-          initial={{ opacity: 0, y: 4 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
-          aria-live="polite">
-          
-            <p className="inline-flex items-center gap-2 text-sm font-medium text-forest-700">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
-              {type} interview in progress
-            </p>
-            <p className="mt-3 font-serif text-xl leading-relaxed text-ink">
-              “Tell me about a time you had to learn a new tool quickly to solve a problem.”
-            </p>
-            <p className="mt-2 text-sm text-ink-muted">Answer out loud. We’re listening.</p>
-            <Button variant="secondary" showArrow={false} className="mt-6" onClick={reset} icon={<SquareIcon className="h-3.5 w-3.5" />}>
-              End interview
-            </Button>
-          </motion.div> :
+        <InterviewRoom type={type} onEnd={handleEnd} /> :
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-            <div className="flex-1">
-              <FieldSelect label="Interview type" options={interviewTypes} value={type} onChange={setType} />
+        <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+            <div className="grid md:grid-cols-[minmax(0,1fr)_280px]">
+              <div className="p-6">
+                <h2 className="text-base font-semibold text-ink">Set up your interview</h2>
+                <p className="mt-1 text-sm text-ink-muted">
+                  {interviewer.name} asks five questions and adapts follow-ups to your profile.
+                </p>
+                <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end">
+                  <div className="flex-1">
+                    <FieldSelect label="Interview type" options={interviewTypes} value={type} onChange={setType} />
+                  </div>
+                  <Button
+                  onClick={() => {
+                    setSavedNote('');
+                    run();
+                  }}
+                  loading={status === 'loading'}
+                  icon={<MicIcon className="h-4 w-4" />}
+                  showArrow={false}>
+                  
+                    {status === 'loading' ? 'Connecting…' : 'Start interview'}
+                  </Button>
+                </div>
+                {savedNote && <div className="mt-4"><SuccessNote>{savedNote}</SuccessNote></div>}
+              </div>
+              <div className="relative hidden bg-forest-900 md:block">
+                <img
+                src={interviewer.image}
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover object-[60%_center] grayscale" />
+              
+                <span className="absolute bottom-3 left-3 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur">
+                  {interviewer.name} · {interviewer.role}
+                </span>
+              </div>
             </div>
-            <Button
-            onClick={run}
-            loading={status === 'loading'}
-            icon={<MicIcon className="h-4 w-4" />}
-            showArrow={false}>
-            
-              {status === 'loading' ? 'Connecting…' : 'Start interview'}
-            </Button>
           </div>
         }
       </section>
 
-      <section className="mt-10 max-w-3xl">
+      <section className="mt-10 max-w-4xl">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-ink">Past sessions</h2>
           <button type="button" className="text-sm font-medium text-forest-700 hover:text-forest-900">
@@ -65,7 +96,7 @@ export function MockInterviews() {
           </button>
         </div>
         <ul className="divide-y divide-line rounded-2xl border border-line bg-surface">
-          {pastSessions.map((s) =>
+          {sessions.map((s) =>
           <li key={s.id}>
               <button
               type="button"

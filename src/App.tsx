@@ -9,6 +9,7 @@ import { Resume } from './pages/Resume';
 import { SkillLab } from './pages/SkillLab';
 import { ActionPlan } from './pages/ActionPlan';
 import { MockInterviews } from './pages/MockInterviews';
+import { Relocate } from './pages/Relocate';
 
 interface AppProps {
   logoVariant?: 'sprout' | 'summit' | 'guide' | 'steps';
@@ -27,6 +28,7 @@ export function App({ logoVariant = 'sprout' }: AppProps) {
             <Route path="skills" element={<SkillLab />} />
             <Route path="plan" element={<ActionPlan />} />
             <Route path="interviews" element={<MockInterviews />} />
+            <Route path="relocate" element={<Relocate />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
